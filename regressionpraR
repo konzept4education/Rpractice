@@ -105,6 +105,58 @@ plot(90:1,Obama.pred, type ="b",
 lines(90:1, McCain.pred, type="b",
       col ="red")
 abline(v=0)
+---
+#モデルの当てはまりの例え
+florida = read.csv("florida.csv")
+head(florida)
+fit2 = lm(florida$Buchanan00 ~ florida$Perot96)
+fit2summary = summary(fit2) 
+#Ｒに内蔵された関数で決定係数を出してみる
+fit2summary$r.squared
+
+#決定係数を簡単に出してくれる関数を作成
+R2 = function(fit) {
+  resid = resid(fit) #残差
+  y = fitted(fit) + resid #線形化
+  TSS = sum((y - mean(y))^2) #平均からの平方和
+  SSR = sum(resid^2) #残差平方和
+  R2 = (TSS - SSR) / TSS #決定係数の公式
+  return(R2)
+}
+
+
+#------残差プロット
+plot(fitted(fit2), resid(fit2),
+     xlim = c(0,1500), ylim = c(-750, 2500))
+abline(h=0)
+
+#外れ値が極めて大きいものがある
+#これからすること。外れ値の大きいところを外して、再度当てはめをしてみる。
+florida.pb = subset(florida, subset = (county != "PalmBeach"))
+fit3 = lm(florida.pb$Buchanan00 ~ florida.pb$Perot96)
+R2(fit3)
+
+par(mfrow = c(1,2))
+#再度残差プロット
+plot(fitted(fit3), resid(fit3),
+     xlim = c(0,1500), ylim = c(-750,2500))
+abline(h=0)
+
+plot(florida.pb$Perot96, florida.pb$Buchanan00)
+abline(fit2, lty="dashed") #削除前
+abline(fit3)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
